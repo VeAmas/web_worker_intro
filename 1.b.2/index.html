@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <textarea name="s1" id="s1" cols="30" rows="10"></textarea>
+    <div id="md51"></div>
+    <textarea name="s2" id="s2" cols="30" rows="10"></textarea>
+    <div id="md52"></div>
+    <div
+      class="rotate"
+      style="width: 50px; height: 50px; background-color: red"
+    ></div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+    <script>
+      const worker = new Worker('./worker.js');
+      worker.addEventListener('message', (e) => {
+        document.getElementById('md52').innerText = e.data;
+      });
+
+      let i = 0;
+      setInterval(() => {
+        document.querySelector('.rotate').style.transform =
+          'rotate(' + i++ + 'deg)';
+      }, 50);
+
+      document.getElementById('s1').addEventListener('input', (e) => {
+        var value = document.getElementById('s1').value;
+
+        let ret = '';
+        let i = 0;
+        while (i++ < 10000) {
+          ret = md5(value + ret);
+        }
+        document.getElementById('md51').innerText = ret;
+      });
+
+      document.getElementById('s2').addEventListener('input', (e) => {
+        var value = document.getElementById('s2').value;
+        worker.postMessage(value);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <textarea id="t"></textarea>
+    <button onclick="send('string')">发送字符串</button>
+    <script>
+      var myworker = new Worker('./worker.js');
+      myworker.onmessage = (e) => {
+        console.log(
+          new Date().toLocaleTimeString() + '收到Worker的消息: ' + e.data
+        );
+      };
+
+      var send = () => {
+        myworker.postMessage(document.getElementById('t').value);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="multiply('mainThread')">主线程</button>
+    <button onclick="multiply('workerThread')">worker</button>
+    <div
+      class="rotate"
+      style="width: 50px; height: 50px; background-color: red"
+    ></div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script>
+      const worker = new Worker('./worker.js');
+
+      let i = 0;
+      setInterval(() => {
+        document.querySelector('.rotate').style.transform =
+          'rotate(' + i++ + 'deg)';
+      }, 50);
+
+      const SIZE = 1000;
+
+      function multiply(type) {
+        if (type === 'mainThread') {
+          var matrix = math.matrix(
+            new Array(SIZE)
+              .fill()
+              .map((v, i) => new Array(SIZE).fill().map((v, j) => i * j))
+          );
+
+          console.log(math.multiply(matrix, matrix));
+        } else {
+          var matrix = new Array(SIZE)
+            .fill()
+            .map((v, i) => new Array(SIZE).fill().map((v, j) => i * j));
+
+          worker.postMessage(JSON.stringify(matrix));
+        }
+      }
+    </script>
+  </body>
+</html>

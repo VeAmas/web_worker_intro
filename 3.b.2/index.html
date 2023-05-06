@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      function jsonp_callback(script) {
+        new Worker(window.URL.createObjectURL(new Blob([script])));
+      }
+      var s = document.createElement('script');
+      s.src = 'http://localhost0:8080/3.b.2/worker-jsonp.js';
+      document.body.append(s);
+
+      new Worker('http://localhost0:8080/3.b.2/worker.js');
+
+      /** http-server --cors */
+    </script>
+  </body>
+</html>

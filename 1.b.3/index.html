@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="doExport('mainThread')">主线程</button>
+    <button onclick="doExport('workerThread')">worker</button>
+    <div
+      class="rotate"
+      style="width: 50px; height: 50px; background-color: red"
+    ></div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script>
+      const worker = new Worker('./worker.js');
+      worker.addEventListener('message', (e) => {
+        downloadFile(e.data);
+      });
+
+      let i = 0;
+      setInterval(() => {
+        document.querySelector('.rotate').style.transform =
+          'rotate(' + i++ + 'deg)';
+      }, 50);
+
+      function downloadFile(url) {
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = url;
+        link.setAttribute('download', 'download.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+
+      function doExport(type) {
+        if (type === 'mainThread') {
+          /** @type {import('exceljs').Workbook} */
+          const workbook = new ExcelJS.Workbook();
+
+          const worksheet = workbook.addWorksheet('123');
+          worksheet.addRows(
+            new Array(50000).fill().map(() => new Array(20).fill(1))
+          );
+
+          workbook.xlsx.writeBuffer().then((unit8) => {
+            const url = URL.createObjectURL(new Blob([unit8.buffer]));
+            downloadFile(url);
+          });
+        } else {
+          worker.postMessage('');
+        }
+      }
+    </script>
+  </body>
+</html>

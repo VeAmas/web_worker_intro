@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' 'unsafe-inline' "
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      new Worker('./worker.js');
+
+//       var worker2 = `
+// importScripts('https://cdn.bootcdn.net/ajax/libs/mathjs/11.8.0/math.min.js')
+// eval('console.log("123")');
+//       `;
+
+//       new Worker(URL.createObjectURL(new Blob([worker2])));
+
+      eval('console.log("123")');
+    </script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  </body>
+</html>

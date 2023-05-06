@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      function XHRWorker(url, ready, scope) {
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener(
+          'load',
+          function () {
+            var worker = new Worker(
+              window.URL.createObjectURL(new Blob([this.responseText]))
+            );
+            if (ready) {
+              ready.call(scope, worker);
+            }
+          },
+          oReq
+        );
+        oReq.open('get', url, true);
+        oReq.send();
+      }
+
+      function WorkerStart() {
+        XHRWorker(
+          'http://localhost0:8080/3.b.1/worker.js',
+          function (worker) {
+            console.log(worker);
+          },
+          this
+        );
+      }
+
+      WorkerStart();
+
+      new Worker('http://localhost0:8080/3.b.1/worker.js');
+
+      /** http-server --cors */
+    </script>
+  </body>
+</html>

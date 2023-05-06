@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="send('string')">发送字符串</button>
+    <button onclick="send('arrayBuffer')">ArrayBuffer</button>
+    <script>
+      var myworker = new Worker('./worker.js');
+
+      var send = (type) => {
+        var payload = '1'.repeat(5e8);
+
+        console.log(+new Date());
+        if (type === 'string') {
+          myworker.postMessage(payload);
+        } else {
+          var ab = new Uint8Array(payload.length);
+          ab.fill(1);
+          // for (let i = 0; i < payload.length; i++) {
+          //   ab[i] = payload[i].charCodeAt(0);
+          // }
+          myworker.postMessage(ab.buffer, [ab.buffer]);
+          setTimeout(() => {
+            console.log(ab.buffer);
+          }, 500)
+        }
+      };
+    </script>
+  </body>
+</html>

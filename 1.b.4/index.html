@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input type="file" id="file" />
+    <button onclick="canny('mainThread')">主线程</button>
+    <button onclick="canny('workerThread')">Worker</button>
+    <div
+      class="rotate"
+      style="width: 50px; height: 50px; background-color: red"
+    ></div>
+
+    <canvas id="origin"></canvas>
+
+    <script src="./canny.js"></script>
+    <script>
+      const worker = new Worker('./worker.js');
+      worker.addEventListener('message', (e) => {
+        var cannyData = JSON.parse(e.data);
+        var canvas = document.getElementById('origin');
+        var ctx = canvas.getContext('2d');
+
+        var color, i, imgData, _i, _len;
+        ctx = canvas.getContext('2d');
+        imgData = ctx.createImageData(canvas.width, canvas.height);
+        for (i = _i = 0, _len = cannyData.length; _i < _len; i = ++_i) {
+          color = cannyData[i];
+          imgData.data[i] = color;
+        }
+        return ctx.putImageData(imgData, 0, 0);
+      });
+
+      let i = 0;
+      setInterval(() => {
+        document.querySelector('.rotate').style.transform =
+          'rotate(' + i++ + 'deg)';
+      }, 50);
+
+      var loadImage = function (file) {
+        return new Promise((rev) => {
+          var fr = new FileReader();
+          fr.readAsDataURL(file);
+          fr.onload = () => {
+            var img = new Image();
+            img.src = fr.result;
+            img.onload = function () {
+              var canvas = document.getElementById('origin');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              rev(canvas);
+            };
+          };
+        });
+      };
+
+      function canny(type) {
+        loadImage(document.getElementById('file').files[0]).then((canvas) => {
+          var ctx = canvas.getContext('2d');
+          var rawData = ctx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          ).data;
+
+          if (type === 'mainThread') {
+            var canny = CannyJS.canny(
+              rawData,
+              canvas.width,
+              canvas.height,
+              100,
+              50,
+              1.4,
+              3
+            );
+            const cannyData = canny.drawOn();
+
+            var color, i, imgData, _i, _len;
+            ctx = canvas.getContext('2d');
+            imgData = ctx.createImageData(canvas.width, canvas.height);
+            for (i = _i = 0, _len = cannyData.length; _i < _len; i = ++_i) {
+              color = cannyData[i];
+              imgData.data[i] = color;
+            }
+            return ctx.putImageData(imgData, 0, 0);
+          } else {
+            worker.postMessage(
+              JSON.stringify({
+                rawData: [...rawData],
+                width: canvas.width,
+                height: canvas.height
+              })
+            );
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
